@@ -7,8 +7,24 @@
   <style>
     /* Theme colors and base styling */
     :root { --accent1:#166fd4; --accent2:#bf4b9e; }
-    html,body{ height:100%; margin:0; font-family: Inter, Roboto, Arial, sans-serif; background: linear-gradient(180deg,#f0f5ff,#f8f4ff); color:#111; }
-    .container{ max-width:980px; margin:0 auto; padding:14px; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #f0f5ff, #f8f4ff);
+      color: #111;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      flex: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+    }
     header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .brand{ display:flex; align-items:center; gap:10px; }
     .logo{ width:48px; height:48px; border-radius:10px; background: linear-gradient(45deg,var(--accent1),var(--accent2)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
@@ -25,7 +41,13 @@
     .messages{ flex:1; overflow:auto; padding:8px; border-radius:8px; border:1px solid #f0f0f0; }
     .msg{ background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#fff; padding:8px 10px; margin-bottom:8px; border-radius:8px; display:inline-block; max-width:85%; }
     .chat-input{ display:flex; gap:8px; margin-top:6px; }
-    footer{ text-align:center; font-size:0.9rem; color:#444;bottom:300PX; }
+   footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #444;
+      padding: 10px 0;
+      margin-top: auto;
+    }
     @media(min-width:900px){ .actions{ justify-content:flex-start; } }
   </style>
 </head>
@@ -51,6 +73,13 @@
     </div>
 
     <main>
+
+      <!-- Welcome message -->
+    <p id="welcomeMessage" style="text-align:center; font-size:1.1rem; color:#333;">
+      Hii Fathima! Agar aap yeh message padre tho plzz at least kuch tho response dho...I really want to be your friend🌸<br>
+      I'll wait for your response 😊💫
+    </p>
+
       <!-- player -->
       <div id="playerWrapper" class="player panel" style="display:none;">
         <video id="mainVideo" controls playsinline muted>
@@ -96,9 +125,8 @@
           </div>
         </div>
       </div>
-
-      <footer>Made with ❤️ by Shaik!</footer>
     </main>
+    <footer>Made with ❤️ by Shaik!</footer>
   </div>
 
 <script>
