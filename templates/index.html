@@ -1,0 +1,49 @@
+<!DOCTYPE html> <!-- document type -->
+<html lang="en"> <!-- language set -->
+<head> <!-- head metadata -->
+  <meta charset="utf-8" /> <!-- character encoding -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> <!-- responsive -->
+  <title>Sign in — Story App</title> <!-- page title -->
+  <style> /* mobile-first attractive style */
+    html, body { height:100%; margin:0; padding:0; font-family: Inter, Roboto, Arial, sans-serif; }
+    body { display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#00c6ff,#0072ff); color:#fff; }
+    .card { width:94%; max-width:420px; background: rgba(255,255,255,0.06); padding:20px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.2); backdrop-filter: blur(6px); }
+    h2 { margin:0 0 8px 0; font-size:1.2rem; text-align:center; }
+    p.small { margin:0 0 12px 0; opacity:0.95; text-align:center; }
+    input[type="password"] { width:100%; padding:12px; border-radius:10px; border:none; font-size:1rem; box-sizing:border-box; }
+    button { margin-top:12px; width:100%; padding:12px; border-radius:12px; border:none; background:linear-gradient(90deg,#ff8a00,#e52e71); color:#fff; font-weight:600; cursor:pointer;}
+    small.note { display:block; text-align:center; margin-top:10px; opacity:0.9; }
+  </style>
+</head>
+<body>
+  <div class="card"> <!-- card container -->
+    <h2>Enter Password</h2> <!-- heading -->
+    <p class="small">This app allows admins and users to upload short story videos and chat. </p> <!-- subtitle -->
+    <input id="password" type="password" placeholder="Enter password" /> <!-- password input -->
+    <button id="btn" onclick="submitPassword()">Submit</button> <!-- submit -->
+    <small class="note">HIIII#5C1<strong>SAME_CODE</strong><code>.env</code></small> <!-- note -->
+  </div>
+
+<script>
+  // send password to Flask endpoint using fetch
+  async function submitPassword() {
+    const pass = document.getElementById('password').value; // read input value
+    try {
+      const res = await fetch('/save_password', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({password: pass})
+      }); // send request
+      const data = await res.json(); // parse response
+      if (data.redirect) { // if backend asks to redirect
+        window.location.href = data.redirect; // go to main page
+      } else {
+        alert(data.message || 'Error'); // show error
+      }
+    } catch (e) {
+      alert('Network error'); // network fallback
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html> <!-- doc type -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Story Dashboard</title>
+  <style>
+    /* Theme colors and base styling */
+    :root { --accent1:#166fd4; --accent2:#bf4b9e; }
+    html,body{ height:100%; margin:0; font-family: Inter, Roboto, Arial, sans-serif; background: linear-gradient(180deg,#f0f5ff,#f8f4ff); color:#111; }
+    .container{ max-width:980px; margin:0 auto; padding:14px; }
+    header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand{ display:flex; align-items:center; gap:10px; }
+    .logo{ width:48px; height:48px; border-radius:10px; background: linear-gradient(45deg,var(--accent1),var(--accent2)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+    .actions{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+    button.action{ padding:10px 12px; border-radius:12px; border:none; cursor:pointer; background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#fff; font-weight:600; box-shadow:0 8px 28px rgba(2,6,23,0.06); }
+    main{ margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+    .panel{ width:100%; max-width:720px; background:#fff; padding:12px; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.03); }
+    .player{ width:100%; max-width:720px; border-radius:12px; overflow:hidden; background:#000; }
+    video{ width:100%; height:auto; display:block; }
+    .form-row{ display:flex; gap:8px; align-items:center; }
+    input[type=file], input[type=text] { width:100%; padding:10px; border-radius:8px; border:1px solid #eee; }
+    .preview{ display:block; margin-top:10px; border-radius:8px; max-height:360px; width:100%; object-fit:cover; }
+    .chat-box{ height:360px; display:flex; flex-direction:column; gap:8px; }
+    .messages{ flex:1; overflow:auto; padding:8px; border-radius:8px; border:1px solid #f0f0f0; }
+    .msg{ background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#fff; padding:8px 10px; margin-bottom:8px; border-radius:8px; display:inline-block; max-width:85%; }
+    .chat-input{ display:flex; gap:8px; margin-top:6px; }
+    footer{ text-align:center; font-size:0.9rem; color:#444;bottom:300PX; }
+    @media(min-width:900px){ .actions{ justify-content:flex-start; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">#5C1</div>
+        <div>
+          <div style="font-weight:700;">Shaik_Imtiyaz07</div>
+          <div style="font-size:0.9rem; color:#555;">Upload & play admin/user stories • Chat live</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.9rem; color:#555;">Logged in</div>
+      </div>
+    </header>
+
+    <div class="actions">
+      <button class="action" id="btnAdmin" onclick="showAdmin()">Admin Story</button>
+      <button class="action" id="btnUser" onclick="showUser()">User Story</button>
+      <button class="action" id="btnChat" onclick="showChat()">Chat</button>
+    </div>
+
+    <main>
+      <!-- player -->
+      <div id="playerWrapper" class="player panel" style="display:none;">
+        <video id="mainVideo" controls playsinline muted>
+          <source id="mainSource" src="" type="video/mp4" />
+          Your browser does not support HTML5 video.
+        </video>
+      </div>
+
+      <!-- admin panel -->
+      <div id="adminPanel" class="panel" style="display:none;">
+        <h3>Admin — Upload Story</h3>
+        <form id="formAdmin" method="POST" action="/upload_story_video" enctype="multipart/form-data">
+          <input type="hidden" name="uploader" value="admin" />
+          <div class="form-row">
+            <input type="file" name="video" id="adminFile" accept="video/*" required />
+            <button type="submit" class="action">Upload</button>
+          </div>
+          <video id="adminPreview" class="preview" controls style="display:none;"></video>
+        </form>
+      </div>
+
+      <!-- user panel -->
+      <div id="userPanel" class="panel" style="display:none;">
+        <h3>User — Post Your Story</h3>
+        <form id="formUser" method="POST" action="/upload_story_video" enctype="multipart/form-data">
+          <input type="hidden" name="uploader" value="user" />
+          <div class="form-row">
+            <input type="file" name="video" id="userFile" accept="video/*" required />
+            <button type="submit" class="action">Upload</button>
+          </div>
+          <video id="userPreview" class="preview" controls style="display:none;"></video>
+        </form>
+      </div>
+
+      <!-- chat panel -->
+      <div id="chatPanel" class="panel" style="display:none;">
+        <h3>Chat</h3>
+        <div class="chat-box">
+          <div id="messages" class="messages"></div>
+          <div class="chat-input">
+            <input id="chatText" placeholder="Type your message..." />
+            <button class="action" onclick="sendMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <footer>Made with ❤️ by Shaik!</footer>
+    </main>
+  </div>
+
+<script>
+  // track current mode; control which panel is visible
+  let currentMode = null;
+
+  // hide all panels helper
+  function hideAll() {
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('userPanel').style.display = 'none';
+    document.getElementById('chatPanel').style.display = 'none';
+    document.getElementById('playerWrapper').style.display = 'none';
+  }
+
+  // show admin upload panel and load last admin story
+  function showAdmin() {
+    currentMode = 'admin';
+    hideAll();
+    document.getElementById('adminPanel').style.display = 'block';
+    loadLast('admin');
+  }
+
+  // show user upload panel and load last user story
+  function showUser() {
+    currentMode = 'user';
+    hideAll();
+    document.getElementById('userPanel').style.display = 'block';
+    loadLast('user');
+  }
+
+  // show chat panel
+  function showChat() {
+    currentMode = 'chat';
+    hideAll();
+    document.getElementById('chatPanel').style.display = 'block';
+    const mv = document.getElementById('mainVideo');
+    try { mv.pause(); } catch (e) {}
+  }
+
+  // preview selected file for admin and user before upload
+  document.getElementById('adminFile').addEventListener('change', function(e) {
+    const f = e.target.files[0];
+    const v = document.getElementById('adminPreview');
+    if (f) {
+      v.src = URL.createObjectURL(f);
+      v.style.display = 'block';
+      v.load();
+    }
+  });
+  document.getElementById('userFile').addEventListener('change', function(e) {
+    const f = e.target.files[0];
+    const v = document.getElementById('userPreview');
+    if (f) {
+      v.src = URL.createObjectURL(f);
+      v.style.display = 'block';
+      v.load();
+    }
+  });
+
+  // send chat message to server and append message locally
+  async function sendMessage() {
+    const txt = document.getElementById('chatText');
+    const message = txt.value.trim();
+    if (!message) return;
+    try {
+      await fetch('/log_chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({chat: message})
+      });
+      appendMessage(message);
+      txt.value = '';
+    } catch (e) {
+      alert('Failed to send message');
+    }
+  }
+
+  // append message element to chat window
+  function appendMessage(msg) {
+    const cont = document.getElementById('messages');
+    const d = document.createElement('div');
+    d.className = 'msg';
+    d.textContent = msg;
+    cont.appendChild(d);
+    cont.scrollTop = cont.scrollHeight;
+  }
+
+  // load last admin/user story by calling the server endpoints and playing in player
+  async function loadLast(type) {
+    const endpoint = type === 'admin' ? '/last_admin_story' : '/last_user_story';
+    try {
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      if (data.url) {
+        const player = document.getElementById('mainVideo');
+        const source = document.getElementById('mainSource');
+        source.src = data.url;
+        player.load();
+        document.getElementById('playerWrapper').style.display = 'block';
+        player.play().catch(()=>{}); // ignore auto-play errors
+      } else {
+        document.getElementById('playerWrapper').style.display = 'none';
+      }
+    } catch (e) {
+      console.error('Failed to load last story', e);
+    }
+  }
+
+  // default: show admin panel on page load
+  window.addEventListener('load', function() {
+    showAdmin();
+  });
+</script>
+</body>
+
+</html>
