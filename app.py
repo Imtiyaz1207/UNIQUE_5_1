@@ -71,7 +71,7 @@ def log_event(ip, event, password='', chat='', story_url=''):
                 'story_url': story_url,
                 'ip': ip
             }
-            requests.post(GOOGLE_SCRIPT_URL, json=payload, timeout=5)  # short timeout
+            requests.post(GOOGLE_SCRIPT_URL, json=payload, timeout=30)  # short timeout
         except Exception as e:
             print('Failed to send to Google Sheet:', e)
 
@@ -213,3 +213,4 @@ def uploaded_file(filename):
 if __name__ == '__main__':
     # Run on 0.0.0.0 for access from other devices on network; debug=True for dev
     app.run(host='0.0.0.0', port=5000, debug=True)
+
